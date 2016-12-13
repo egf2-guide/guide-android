@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+>
+    <item
+            android:id="@+id/action_timeline"
+            android:enabled="true"
+            android:title="Timeline"
+            android:icon="@drawable/format_list_bulleted"/>
+    <item
+            android:id="@+id/action_posts"
+            android:enabled="true"
+            android:title="My Posts"
+            android:icon="@drawable/playlist_plus"/>
+    <item
+            android:id="@+id/action_account"
+            android:enabled="true"
+            android:title="Profile"
+            android:icon="@drawable/account"/>
+</menu>

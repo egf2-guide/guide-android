@@ -1,0 +1,10 @@
+<resources>
+    <string name="app_name">Guide for EGF2</string>
+    <string name="welcome">Welcome to Guide</string>
+    <string name="welcome2">for EGF2</string>
+    <string name="hint_email">Email</string>
+    <string name="hint_pass">Password</string>
+    <string name="btn_login">Login</string>
+    <string name="login_register">Register</string>
+    <string name="login_forgot">Forgot Password</string>
+</resources>

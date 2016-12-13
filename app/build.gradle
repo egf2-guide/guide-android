@@ -1,0 +1,75 @@
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'egf2-generator'
+apply plugin: 'com.github.ben-manes.versions'
+
+def cfg = rootProject.ext
+
+android {
+    compileSdkVersion cfg.compileVersion
+    buildToolsVersion cfg.buildToolsVersion
+
+    defaultConfig {
+        applicationId "com.eigengraph.egf2.guide"
+        minSdkVersion cfg.minSdk
+        targetSdkVersion cfg.targetSdk
+        versionCode cfg.versionCode
+        versionName cfg.versionName
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+}
+
+EGF2 {
+    url = "http://guide.eigengraph.com/"
+    urlPreffix = "v1/"
+    preffixForModels = "EGF2"
+    source = file("${project.rootDir}/schema/config.json")
+    modelForFile = "file"
+    kinds = ["avatar", "image"]
+    excludeModels = ["schedule"]
+}
+
+dependencies {
+    compile "com.eigengraph.egf2:framework:1.0.0"
+
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    compile "com.android.support:appcompat-v7:$support"
+    compile "com.android.support:support-v4:$support"
+    compile "com.android.support:design:$support"
+
+    compile "io.reactivex:rxandroid:$rxandroid"
+    compile "io.reactivex:rxjava:$rxjava"
+
+    compile 'net.danlew:android.joda:2.9.5.1'
+    compile 'com.github.bumptech.glide:glide:3.7.0'
+
+    compile "org.jetbrains.anko:anko-sdk19:$anko"
+    compile "org.jetbrains.anko:anko-appcompat-v7:$anko"
+    compile "org.jetbrains.anko:anko-design:$anko"
+    compile "org.jetbrains.anko:anko-recyclerview-v7:$anko"
+
+    compile "com.jakewharton.rxbinding:rxbinding-kotlin:$rxbinding"
+    compile "com.jakewharton.rxbinding:rxbinding-support-v4-kotlin:$rxbinding"
+    compile "com.jakewharton.rxbinding:rxbinding-design-kotlin:$rxbinding"
+    compile "com.jakewharton.rxbinding:rxbinding-recyclerview-v7-kotlin:$rxbinding"
+    compile "com.jakewharton.rxbinding:rxbinding-appcompat-v7-kotlin:$rxbinding"
+}
+
+repositories {
+    maven {
+        url "https://dl.bintray.com/dmitry-shingarev/egf2-android-client"
+    }
+}
