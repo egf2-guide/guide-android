@@ -61,7 +61,7 @@ class LoginFragmentLayout : IFragmentLayout {
 						text = resources.getString(R.string.login_register)
 						gravity = Gravity.CENTER
 						onClick {
-
+							(fragment as LoginFragment).register()
 						}
 					}
 					tintedTextView {
@@ -69,7 +69,7 @@ class LoginFragmentLayout : IFragmentLayout {
 						text = resources.getString(R.string.login_forgot)
 						gravity = Gravity.CENTER
 						onClick {
-
+							(fragment as LoginFragment).forgot()
 						}
 					}
 					Observable.combineLatest(
