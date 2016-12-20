@@ -15,6 +15,7 @@ android {
         targetSdkVersion cfg.targetSdk
         versionCode cfg.versionCode
         versionName cfg.versionName
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -33,8 +34,8 @@ android {
 
 EGF2 {
     url = "http://guide.eigengraph.com/"
-    urlPreffix = "v1/"
-    preffixForModels = "EGF2"
+    urlPrefix = "v1/"
+    prefixForModels = "EGF2"
     source = file("${project.rootDir}/schema/config.json")
     modelForFile = "file"
     kinds = ["avatar", "image"]
@@ -42,7 +43,7 @@ EGF2 {
 }
 
 dependencies {
-    compile "com.eigengraph.egf2:framework:1.0.0"
+    compile "com.eigengraph.egf2:framework:$versionName"
 
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
@@ -66,10 +67,13 @@ dependencies {
     compile "com.jakewharton.rxbinding:rxbinding-design-kotlin:$rxbinding"
     compile "com.jakewharton.rxbinding:rxbinding-recyclerview-v7-kotlin:$rxbinding"
     compile "com.jakewharton.rxbinding:rxbinding-appcompat-v7-kotlin:$rxbinding"
+
+    compile 'com.github.atsushi-ageet:realm-browser:0.0.6'
 }
 
 repositories {
     maven {
         url "https://dl.bintray.com/dmitry-shingarev/egf2-android-client"
     }
+    maven { url 'https://jitpack.io' }
 }
