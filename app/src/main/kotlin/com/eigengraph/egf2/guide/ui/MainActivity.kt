@@ -5,6 +5,7 @@ import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
 import android.widget.FrameLayout
+import com.dd.realmbrowser.RealmBrowser
 import com.eigengraph.egf2.framework.EGF2
 import com.eigengraph.egf2.framework.EGF2Bus
 import com.eigengraph.egf2.framework.models.EGF2Model
@@ -17,6 +18,7 @@ import com.eigengraph.egf2.guide.ui.fragment.AccountFragment
 import com.eigengraph.egf2.guide.ui.fragment.PostsFragment
 import com.eigengraph.egf2.guide.ui.fragment.TimeLineFragment
 import com.eigengraph.egf2.guide.util.snackbar
+import io.realm.RealmConfiguration
 import org.jetbrains.anko.contentView
 
 class MainActivity : AppCompatActivity() {
@@ -34,7 +36,7 @@ class MainActivity : AppCompatActivity() {
 			EGF2.getSelfUser(null, true, EGF2User::class.java).subscribe({
 				user ->
 				DataManager.user = user
-				EGF2Bus.post(EGF2Bus.EVENT.OBJECT_CREATED, EGF2Model.ME, user)
+				EGF2Bus.post(EGF2Bus.EVENT.OBJECT_LOADED, EGF2Model.ME, user)
 			}, {
 				contentView?.snackbar(it.message.toString())
 			})
@@ -45,6 +47,13 @@ class MainActivity : AppCompatActivity() {
 			supportFragmentManager.showFragment(TimeLineFragment.newInstance())
 		}
 
+		val conf: RealmConfiguration = RealmConfiguration.Builder()
+				.schemaVersion(1)
+				.build()
+
+		RealmBrowser.getInstance().addRealmConf(conf)
+
+		RealmBrowser.showRealmFilesNotification(this)
 	}
 
 	override fun onDestroy() {
@@ -52,19 +61,24 @@ class MainActivity : AppCompatActivity() {
 		super.onDestroy()
 	}
 
+	var currItem = R.id.action_timeline
+
 	fun navigationListener(item: MenuItem): Boolean {
-		when (item.itemId) {
-			R.id.action_timeline -> {
-				fab?.hide()
-				supportFragmentManager.showFragment(TimeLineFragment.newInstance())
-			}
-			R.id.action_posts -> {
-				fab?.show()
-				supportFragmentManager.showFragment(PostsFragment.newInstance())
-			}
-			R.id.action_account -> {
-				fab?.hide()
-				supportFragmentManager.showFragment(AccountFragment.newInstance())
+		if (currItem != item.itemId) {
+			currItem = item.itemId
+			when (item.itemId) {
+				R.id.action_timeline -> {
+					fab?.hide()
+					supportFragmentManager.showFragment(TimeLineFragment.newInstance())
+				}
+				R.id.action_posts -> {
+					fab?.show()
+					supportFragmentManager.showFragment(PostsFragment.newInstance())
+				}
+				R.id.action_account -> {
+					fab?.hide()
+					supportFragmentManager.showFragment(AccountFragment.newInstance())
+				}
 			}
 		}
 		return true

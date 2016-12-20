@@ -7,4 +7,10 @@
     <string name="btn_login">Login</string>
     <string name="login_register">Register</string>
     <string name="login_forgot">Forgot Password</string>
+    <string name="action_search">Search</string>
+    <string name="action_logout">LOGOUT</string>
+    <string name="hint_first_name">First Name</string>
+    <string name="hint_last_name">Last Name</string>
+    <string name="hint_dob">Day of Birthday</string>
+    <string name="hint_pass2">Confirm Password</string>
 </resources>

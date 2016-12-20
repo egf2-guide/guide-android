@@ -14,8 +14,10 @@ class App : Application() {
 		EGF2.Builder(applicationContext)
 				.config(EGF2Config())
 				.gson(EGF2GsonFactory())
+				.types(EGF2MapTypesFactory())
 				.version(1)
 				.token(token)
+				.debug(true)
 				.build()
 
 

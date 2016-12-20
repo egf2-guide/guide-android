@@ -17,6 +17,7 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.ProgressBar
 import com.bumptech.glide.Glide
 import com.eigengraph.egf2.framework.EGF2
 import com.eigengraph.egf2.guide.DataManager
@@ -34,6 +35,7 @@ class NewPostActivity : AppCompatActivity() {
 	var fab: FloatingActionButton? = null
 	var image: ImageView? = null
 	var text: EditText? = null
+	var progress: ProgressBar? = null
 
 	private val newPostLayout = NewPostActivityLayout()
 
@@ -65,19 +67,24 @@ class NewPostActivity : AppCompatActivity() {
 		}
 
 		fab?.setOnClickListener {
-			EGF2.uploadImage(mCurrentPhotoPath as String, mCurrentPhotoMime as String, Date().time.toString(), EGF2File.ENUM_KINDS.IMAGE.name.toLowerCase(), EGF2File::class.java)
-					.flatMap {
-						val post = EGF2Post()
-						post.object_type = EGF2Post.OBJECT_TYPE
-						post.image = it.id
-						post.desc = text?.text.toString()
-						EGF2.createObjectOnEdge(DataManager.user?.id as String, EGF2User.EDGE_POSTS, post.create(), EGF2Post::class.java)
-					}
-					.subscribe({
-
-					}, {
-						container?.snackbar(it.message.toString())
-					})
+			if (mCurrentPhotoPath != null && text?.text?.isNotEmpty() as Boolean) {
+				progress?.visibility = View.VISIBLE
+				EGF2.uploadImage(mCurrentPhotoPath as String, mCurrentPhotoMime as String, Date().time.toString(), EGF2File.ENUM_KINDS.IMAGE.name.toLowerCase(), EGF2File::class.java)
+						.flatMap {
+							val post = EGF2Post()
+							post.object_type = EGF2Post.OBJECT_TYPE
+							post.image = it.id
+							post.desc = text?.text.toString()
+							EGF2.createObjectOnEdge(DataManager.user?.id as String, EGF2User.EDGE_POSTS, post.create(), EGF2Post::class.java)
+						}
+						.subscribe({
+							progress?.visibility = View.GONE
+							finish()
+						}, {
+							container?.snackbar(it.message.toString())
+							progress?.visibility = View.GONE
+						})
+			}
 		}
 	}
 
@@ -99,7 +106,7 @@ class NewPostActivity : AppCompatActivity() {
 			cursor.close()
 
 			Glide.with(NewPostActivity@ this).load(File(mCurrentPhotoPath))
-					.centerCrop()
+					.fitCenter()
 					.into(image)
 		}
 	}

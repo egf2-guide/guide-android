@@ -3,6 +3,7 @@ package com.eigengraph.egf2.guide.ui.anko
 import android.os.Build
 import android.support.v7.app.AppCompatActivity
 import android.view.Gravity
+import android.view.View
 import android.widget.ImageView
 import com.eigengraph.egf2.guide.R
 import com.eigengraph.egf2.guide.ui.NewPostActivity
@@ -35,7 +36,7 @@ class NewPostActivityLayout : IActivityLayout {
 
 					(activity as NewPostActivity).image = imageView {
 						imageResource = R.drawable.camera_enhance
-						scaleType = ImageView.ScaleType.CENTER_INSIDE
+						scaleType = ImageView.ScaleType.FIT_CENTER
 					}.lparams(width = matchParent, height = dip(250))
 
 					textInputLayout {
@@ -56,6 +57,12 @@ class NewPostActivityLayout : IActivityLayout {
 				gravity = Gravity.BOTTOM or Gravity.RIGHT
 				bottomMargin = dip(16)
 				rightMargin = dip(16)
+			}
+
+			(activity as NewPostActivity).progress = progressBar {
+				visibility = View.GONE
+			}.lparams {
+				gravity = Gravity.CENTER
 			}
 		}
 	}.view
