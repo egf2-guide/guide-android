@@ -6,9 +6,7 @@ import android.os.Build
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -16,11 +14,16 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.animation.GlideAnimation
 import com.bumptech.glide.request.target.BitmapImageViewTarget
 import com.bumptech.glide.request.target.SimpleTarget
+import com.eigengraph.egf2.framework.EGF2
 import com.eigengraph.egf2.framework.EGF2Bus
 import com.eigengraph.egf2.guide.DataManager
+import com.eigengraph.egf2.guide.R
 import com.eigengraph.egf2.guide.models.EGF2User
+import com.eigengraph.egf2.guide.ui.LoginActivity
 import com.eigengraph.egf2.guide.ui.anko.AccountLayout
 import com.eigengraph.egf2.guide.util.fullName
+import org.jetbrains.anko.defaultSharedPreferences
+import org.jetbrains.anko.startActivity
 import rx.Subscription
 import rx.functions.Action1
 
@@ -45,6 +48,9 @@ class AccountFragment : Fragment() {
 
 	override fun onActivityCreated(savedInstanceState: Bundle?) {
 		super.onActivityCreated(savedInstanceState)
+
+		setHasOptionsMenu(true)
+
 		DataManager.user?.let {
 			name?.text = it.name.fullName()
 			email?.text = it.email
@@ -83,6 +89,27 @@ class AccountFragment : Fragment() {
 					}
 				})
 
+	}
+
+	override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
+		inflater?.inflate(R.menu.account, menu)
+	}
+
+	override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+		if (item?.itemId == R.id.action_logout) {
+			EGF2.logout().subscribe({
+				val pref = activity.defaultSharedPreferences
+				pref.edit().remove("token").apply()
+				activity.startActivity<LoginActivity>()
+				activity.finishAffinity()
+			}, {
+				val pref = activity.defaultSharedPreferences
+				pref.edit().remove("token").apply()
+				activity.startActivity<LoginActivity>()
+				activity.finishAffinity()
+			})
+		}
+		return super.onOptionsItemSelected(item)
 	}
 
 	override fun onDestroyView() {
