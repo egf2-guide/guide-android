@@ -18,6 +18,7 @@ import com.eigengraph.egf2.guide.ui.fragment.AccountFragment
 import com.eigengraph.egf2.guide.ui.fragment.PostsFragment
 import com.eigengraph.egf2.guide.ui.fragment.TimeLineFragment
 import com.eigengraph.egf2.guide.util.snackbar
+import com.eigengraph.egf2.guide.util.snackbarLong
 import io.realm.RealmConfiguration
 import org.jetbrains.anko.contentView
 
@@ -37,6 +38,9 @@ class MainActivity : AppCompatActivity() {
 				user ->
 				DataManager.user = user
 				EGF2Bus.post(EGF2Bus.EVENT.OBJECT_LOADED, EGF2Model.ME, user)
+				if (!user.verified) {
+					verify()
+				}
 			}, {
 				contentView?.snackbar(it.message.toString())
 			})
@@ -54,6 +58,10 @@ class MainActivity : AppCompatActivity() {
 		RealmBrowser.getInstance().addRealmConf(conf)
 
 		RealmBrowser.showRealmFilesNotification(this)
+	}
+
+	private fun verify() {
+		contentView?.snackbarLong("User not verified")
 	}
 
 	override fun onDestroy() {
