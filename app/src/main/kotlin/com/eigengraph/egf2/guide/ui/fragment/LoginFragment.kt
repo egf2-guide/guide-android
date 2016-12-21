@@ -30,6 +30,8 @@ class LoginFragment : Fragment() {
 
 	private var layout = LoginFragmentLayout()
 
+	private var dobDate = DateTime.now()
+
 	override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		return layout.bind(this)
 	}
@@ -82,7 +84,7 @@ class LoginFragment : Fragment() {
 					RegisterModel(fname?.text.toString(),
 							lname?.text.toString(),
 							email?.text.toString(),
-							DateTime.now().toString(),
+							dobDate.toString(),
 							pass?.text.toString()))
 					.subscribe({
 						dialog.dismiss()
@@ -99,7 +101,7 @@ class LoginFragment : Fragment() {
 				RxTextView.textChanges(pass as EditText),
 				RxTextView.textChanges(pass2 as EditText),
 				{ pass, pass2 ->
-					pass.isNotEmpty() && pass.toString() == pass2.toString()
+					dob?.text.toString().isNotEmpty() && pass.isNotEmpty() && pass.toString() == pass2.toString()
 				})
 				.subscribe {
 					btn.isEnabled = it
@@ -112,6 +114,7 @@ class LoginFragment : Fragment() {
 				{
 					view, year, monthOfYear, dayOfMonth ->
 					dob?.setText("${(monthOfYear + 1).toString()}/${dayOfMonth.toString()}/${year.toString()}")
+					dobDate = DateTime(year, monthOfYear + 1, dayOfMonth, 0, 0)
 				},
 				now.get(Calendar.YEAR),
 				now.get(Calendar.MONTH),
