@@ -18,7 +18,7 @@ class LoginActivity : AppCompatActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		if (EGF2.isLoggedIn()) {
-			finish()
+			finishAffinity()
 			this.startActivity<MainActivity>()
 		} else {
 			setContentView(loginLayout.bind(this))
