@@ -69,6 +69,8 @@ dependencies {
     compile "com.jakewharton.rxbinding:rxbinding-appcompat-v7-kotlin:$rxbinding"
 
     compile 'com.github.atsushi-ageet:realm-browser:0.0.6'
+
+    compile "com.wdullaer:materialdatetimepicker:+"
 }
 
 repositories {
