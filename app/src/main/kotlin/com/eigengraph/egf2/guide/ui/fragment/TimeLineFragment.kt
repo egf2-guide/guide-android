@@ -70,9 +70,10 @@ class TimeLineFragment : Fragment() {
 	}
 
 	private fun getTimeline(useCache: Boolean) {
-
+		swipe?.isRefreshing = true
 		EGF2.getEdgeObjects(DataManager.user?.id as String, EGF2User.EDGE_TIMELINE, null, EGF2.DEF_COUNT, null, useCache, EGF2Post::class.java)
 				.subscribe({
+					fillTimeLine(it.count, it.results)
 					if (swipe?.isRefreshing as Boolean) swipe?.isRefreshing = false
 				}, {
 					if (swipe?.isRefreshing as Boolean) swipe?.isRefreshing = false
@@ -145,37 +146,41 @@ class TimeLineFragment : Fragment() {
 		swipe?.isRefreshing = true
 		EGF2.search(text, "", EGF2.DEF_COUNT, "post", "desc", "", "", "", "image,creator", EGF2Post::class.java)
 				.subscribe({
-					if (it.count == 0) {
-						clearSearchList()
-					} else {
-						list.addAll(it.results as ArrayList<EGF2Post>)
-						adapter.notifyDataSetChanged()
-
-						val l = ArrayList<Observable<EGF2File>>()
-						val c = ArrayList<Observable<EGF2User>>()
-						list.forEach {
-							l.add(EGF2.getObjectByID(it.image, null, true, EGF2File::class.java))
-							c.add(EGF2.getObjectByID(it.creator, null, true, EGF2User::class.java))
-						}
-
-						Observable.zip(l, { it }).subscribe({
-							it.forEach {
-								mapImage.put((it as EGF2File).id, it)
-							}
-							adapter.notifyDataSetChanged()
-						}, {})
-
-						Observable.zip(c, { it }).subscribe({
-							it.forEach {
-								mapCreator.put((it as EGF2User).id, it)
-							}
-							adapter.notifyDataSetChanged()
-						}, {})
-					}
+					fillTimeLine(it.count, it.results)
 					swipe?.isRefreshing = false
 				}, {
 					swipe?.isRefreshing = false
 				})
+	}
+
+	private fun fillTimeLine(count: Int, results: List<EGF2Post>) {
+		if (count == 0) {
+			clearSearchList()
+		} else {
+			list.addAll(results as ArrayList<EGF2Post>)
+			adapter.notifyDataSetChanged()
+
+			val l = ArrayList<Observable<EGF2File>>()
+			val c = ArrayList<Observable<EGF2User>>()
+			list.forEach {
+				l.add(EGF2.getObjectByID(it.image, null, true, EGF2File::class.java))
+				c.add(EGF2.getObjectByID(it.creator, null, true, EGF2User::class.java))
+			}
+
+			Observable.zip(l, { it }).subscribe({
+				it.forEach {
+					mapImage.put((it as EGF2File).id, it)
+				}
+				adapter.notifyDataSetChanged()
+			}, {})
+
+			Observable.zip(c, { it }).subscribe({
+				it.forEach {
+					mapCreator.put((it as EGF2User).id, it)
+				}
+				adapter.notifyDataSetChanged()
+			}, {})
+		}
 	}
 
 	override fun onDestroyView() {
