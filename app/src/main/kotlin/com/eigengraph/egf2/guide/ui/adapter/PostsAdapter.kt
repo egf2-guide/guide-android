@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import com.eigengraph.egf2.guide.models.EGF2File
 import com.eigengraph.egf2.guide.models.EGF2Post
 import com.eigengraph.egf2.guide.models.EGF2User
-import com.eigengraph.egf2.guide.ui.PostItemViewHolder
+import com.eigengraph.egf2.guide.ui.adapter.holder.PostItemViewHolder
 import com.eigengraph.egf2.guide.ui.anko.PostItemUI
 import java.util.*
 

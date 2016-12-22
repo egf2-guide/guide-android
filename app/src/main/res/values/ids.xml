@@ -7,4 +7,8 @@
     <item name="post_item_image" type="id"/>
     <item name="post_item_text" type="id"/>
     <item name="post_item_creator" type="id"/>
+
+    <item name="follow_item_name" type="id"/>
+    <item name="follow_item_email" type="id"/>
+    <item name="follow_item_unfollow" type="id"/>
 </resources>
