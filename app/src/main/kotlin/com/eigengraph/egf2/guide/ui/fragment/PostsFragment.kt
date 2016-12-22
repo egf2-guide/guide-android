@@ -49,9 +49,11 @@ class PostsFragment : Fragment() {
 		super.onActivityCreated(savedInstanceState)
 		Log.d(PostsFragment::class.java.simpleName, "onActivityCreated")
 		if (DataManager.user != null) {
+			subscribe()
 			getPosts(DataManager.user as EGF2User)
 		} else {
 			EGF2Bus.subscribeForObject(EGF2Bus.EVENT.OBJECT_LOADED, EGF2Model.ME, Action1 {
+				subscribe()
 				getPosts(it?.obj as EGF2User)
 			})
 		}
@@ -69,10 +71,6 @@ class PostsFragment : Fragment() {
 	private var mapCreator = HashMap<String, EGF2User>()
 
 	private fun getPosts(it: EGF2User, useCache: Boolean = true) {
-
-		sub = EGF2Bus.subscribeForEdge(EGF2Bus.EVENT.EDGE_ADDED, it.id, EGF2User.EDGE_POSTS, Action1 {
-			Log.d(PostsFragment::class.java.simpleName, "subscribeForEdge")
-		})
 
 		EGF2.getEdgeObjects(it.id, EGF2User.EDGE_POSTS, null, EGF2.DEF_COUNT, arrayOf("image", "creator"), useCache, EGF2Model::class.java)
 				.subscribe({
@@ -106,8 +104,15 @@ class PostsFragment : Fragment() {
 
 					Log.d(PostsFragment::class.java.simpleName, "getEdgeObjects onNext")
 				}, {
+					if (swipe?.isRefreshing as Boolean) swipe?.isRefreshing = false
 					Log.d(PostsFragment::class.java.simpleName, "getEdgeObjects onError")
 				})
+	}
+
+	private fun subscribe() {
+		sub = EGF2Bus.subscribeForEdge(EGF2Bus.EVENT.EDGE_ADDED, DataManager.user?.id as String, EGF2User.EDGE_POSTS, Action1 {
+			Log.d(PostsFragment::class.java.simpleName, "subscribeForEdge")
+		})
 	}
 
 	override fun onDestroyView() {
