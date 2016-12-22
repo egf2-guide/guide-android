@@ -71,7 +71,7 @@ class PostsFragment : Fragment() {
 	private var mapCreator = HashMap<String, EGF2User>()
 
 	private fun getPosts(it: EGF2User, useCache: Boolean = true) {
-
+		swipe?.isRefreshing = true
 		EGF2.getEdgeObjects(it.id, EGF2User.EDGE_POSTS, null, EGF2.DEF_COUNT, arrayOf("image", "creator"), useCache, EGF2Model::class.java)
 				.subscribe({
 					if (EGF2.isFirstPage(it)) list.clear()
