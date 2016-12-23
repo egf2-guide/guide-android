@@ -5,6 +5,7 @@ import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.RecyclerView
 import android.view.*
+import android.widget.Button
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -17,6 +18,7 @@ import com.eigengraph.egf2.guide.ui.LoginActivity
 import com.eigengraph.egf2.guide.ui.adapter.FollowsAdapter
 import com.eigengraph.egf2.guide.ui.anko.AccountLayout
 import com.eigengraph.egf2.guide.util.fullName
+import com.eigengraph.egf2.guide.util.snackbar
 import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.startActivity
 import rx.Subscription
@@ -35,6 +37,7 @@ class AccountFragment : Fragment() {
 	var email: TextView? = null
 	var recyclerView: RecyclerView? = null
 	var swipe: SwipeRefreshLayout? = null
+    var verify: Button? = null
 
 	private var layout = AccountLayout()
 
@@ -64,6 +67,18 @@ class AccountFragment : Fragment() {
 					email?.text = (it as EGF2User).email
 				}
 			})
+
+            if (!it.verified) {
+                verify?.visibility = View.VISIBLE
+                verify?.setOnClickListener {
+                    EGF2.resendEmailVerification()
+                            .subscribe({
+                                view?.snackbar("Please check the email, We have sent you an Verification Email")
+                            }, {
+                                view?.snackbar(it.message.toString())
+                            })
+                }
+            }
 
 			getFollows(true)
 
