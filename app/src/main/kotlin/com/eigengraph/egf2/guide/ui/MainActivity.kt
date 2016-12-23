@@ -1,6 +1,7 @@
 package com.eigengraph.egf2.guide.ui
 
 import android.os.Bundle
+import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.FloatingActionButton
 import android.support.v7.app.AppCompatActivity
 import android.view.MenuItem
@@ -17,15 +18,16 @@ import com.eigengraph.egf2.guide.ui.anko.MainActivityLayout
 import com.eigengraph.egf2.guide.ui.fragment.AccountFragment
 import com.eigengraph.egf2.guide.ui.fragment.PostsFragment
 import com.eigengraph.egf2.guide.ui.fragment.TimeLineFragment
+import com.eigengraph.egf2.guide.util.parseError
 import com.eigengraph.egf2.guide.util.snackbar
-import com.eigengraph.egf2.guide.util.snackbarLong
 import io.realm.RealmConfiguration
-import org.jetbrains.anko.contentView
+
 
 class MainActivity : AppCompatActivity() {
 
 	var container: FrameLayout? = null
 	var fab: FloatingActionButton? = null
+    var coordinatorLayout: CoordinatorLayout? = null
 
 	private val mainLayout = MainActivityLayout()
 
@@ -42,7 +44,7 @@ class MainActivity : AppCompatActivity() {
 					verify()
 				}
 			}, {
-				contentView?.snackbar(it.message.toString())
+                coordinatorLayout?.snackbar(parseError(it.message.toString()))
 			})
 		}
 
@@ -61,7 +63,7 @@ class MainActivity : AppCompatActivity() {
 	}
 
 	private fun verify() {
-		contentView?.snackbarLong("User not verified")
+        coordinatorLayout?.snackbar("User not verified")
 	}
 
 	override fun onDestroy() {
