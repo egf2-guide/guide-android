@@ -33,8 +33,7 @@ class MainActivityLayout : IActivityLayout {
                     activity.supportActionBar?.setDisplayHomeAsUpEnabled(false)
                 }.lparams(width = matchParent, height = actionBarSize())
 
-            }.lparams(width = matchParent) {
-            }
+			}.lparams(width = matchParent)
 
             verticalLayout {
                 (activity as MainActivity).coordinatorLayout = coordinatorLayout {
