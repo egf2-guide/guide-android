@@ -1,6 +1,6 @@
 buildscript {
     ext.kotlin_version = '1.0.5-2'
-    ext.support = '25.0.1'
+    ext.support = '25.1.0'
     ext.retrofit = '2.1.0'
     ext.rxjava = '1.2.3'
     ext.rxandroid = '1.2.1'
