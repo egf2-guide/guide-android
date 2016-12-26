@@ -1,0 +1,594 @@
+{
+  "port": 8000,
+  "log_level": "info",
+  "storage": "rethinkdb",
+  "rethinkdb": {
+    "host": "localhost",
+    "db": "guide"
+  },
+  "cassandra": {
+    "contactPoints": [
+      "localhost"
+    ],
+    "keyspace": "eigengraph"
+  },
+  "queue": "rethinkdb",
+  "kafka": {
+    "hosts": [
+      "localhost:9092"
+    ],
+    "client-id": "client-data",
+    "topic": "events"
+  },
+  "graph": {
+    "custom_schemas": {
+      "key_value": {
+        "key": {
+          "type": "string",
+          "required": true
+        },
+        "value": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "human_name": {
+        "use": {
+          "type": "string",
+          "enum": [
+            "usual",
+            "official",
+            "temp",
+            "nickname",
+            "anonymous",
+            "old",
+            "maiden"
+          ],
+          "default": "official"
+        },
+        "family": {
+          "type": "string",
+          "min": 1,
+          "max": 512,
+          "required": true
+        },
+        "given": {
+          "type": "string",
+          "min": 1,
+          "max": 512,
+          "required": true
+        },
+        "prefix": {
+          "type": "string",
+          "min": 1,
+          "max": 64
+        },
+        "suffix": {
+          "type": "string",
+          "min": 1,
+          "max": 64
+        },
+        "middle": {
+          "type": "string",
+          "min": 1,
+          "max": 64
+        }
+      },
+      "edge": {
+        "src": {
+          "type": "string",
+          "required": true
+        },
+        "name": {
+          "type": "string",
+          "required": true
+        },
+        "dst": {
+          "type": "string",
+          "required": true
+        }
+      },
+      "dimension": {
+        "height": {
+          "type": "integer",
+          "required": true
+        },
+        "width": {
+          "type": "integer",
+          "required": true
+        }
+      },
+      "resize": {
+        "url": {
+          "type": "string",
+          "required": false
+        },
+        "dimensions": {
+          "type": "struct",
+          "schema": "dimension",
+          "required": true
+        }
+      },
+      "time": {
+        "hour": {
+          "type": "integer"
+        },
+        "minute": {
+          "type": "integer"
+        },
+        "second": {
+          "type": "integer"
+        }
+      },
+      "date": {
+        "year": {
+          "type": "integer"
+        },
+        "month": {
+          "type": "integer"
+        },
+        "day": {
+          "type": "integer"
+        },
+        "day_of_week": {
+          "type": "integer"
+        }
+      }
+    },
+    "common_fields": {
+      "id": {
+        "type": "string",
+        "required": true
+      },
+      "object_type": {
+        "type": "string",
+        "required": true,
+        "edit_mode": "NE"
+      },
+      "created_at": {
+        "type": "date",
+        "required": true
+      },
+      "modified_at": {
+        "type": "date",
+        "required": true
+      },
+      "deleted_at": {
+        "type": "date"
+      }
+    },
+    "system_user": {
+      "code": "01",
+      "suppress_event": true,
+      "back_end_only": true,
+      "fields": {
+        "salt": {
+          "type": "string"
+        },
+        "password_hash": {
+          "type": "string"
+        },
+        "reset_token": {
+          "type": "string"
+        },
+        "verify_token": {
+          "type": "string"
+        }
+      }
+    },
+    "session": {
+      "code": "02",
+      "suppress_event": true,
+      "back_end_only": true,
+      "fields": {
+        "user": {
+          "type": "string",
+          "required": true
+        },
+        "token": {
+          "type": "string",
+          "required": false
+        },
+        "expires_at": {
+          "type": "date",
+          "required": true
+        }
+      }
+    },
+    "user": {
+      "code": "03",
+      "GET": "any",
+      "PUT": "self",
+      "fields": {
+        "name": {
+          "type": "struct",
+          "schema": "human_name",
+          "required": true,
+          "edit_mode": "E"
+        },
+        "email": {
+          "type": "string",
+          "validator": "email",
+          "required": true,
+          "unique": true
+        },
+        "system": {
+          "type": "object_id",
+          "object_types": [
+            "system_user"
+          ]
+        },
+        "verified": {
+          "type": "boolean",
+          "default": false
+        },
+        "no_password": {
+          "type": "boolean",
+          "default": false
+        },
+        "date_of_birth": {
+          "type": "date",
+          "required": true
+        }
+      },
+      "edges": {
+        "roles": {
+          "contains": [
+            "customer_role",
+            "admin_role"
+          ],
+          "GET": "self"
+        },
+        "posts": {
+          "contains": [
+            "post"
+          ],
+          "GET": "self",
+          "POST": "self",
+          "DELETE": "self"
+        },
+        "timeline": {
+          "contains": [
+            "post"
+          ],
+          "GET": "self"
+        },
+        "follows": {
+          "contains": [
+            "user"
+          ],
+          "GET": "self",
+          "LINK": "self",
+          "DELETE": "self"
+        },
+        "followers": {
+          "contains": [
+            "user"
+          ],
+          "GET": "self"
+        }
+      }
+    },
+    "event": {
+      "code": "04",
+      "back_end_only": true,
+      "fields": {
+        "object": {
+          "type": "string"
+        },
+        "edge": {
+          "type": "struct",
+          "schema": "edge"
+        },
+        "method": {
+          "type": "string",
+          "enum": [
+            "GET",
+            "POST",
+            "DELETE"
+          ],
+          "required": true
+        },
+        "current": {
+          "type": "struct",
+          "schema": "any"
+        },
+        "previous": {
+          "type": "struct",
+          "schema": "any"
+        },
+        "created_at": {
+          "type": "integer",
+          "required": true
+        }
+      }
+    },
+    "job": {
+      "code": "05",
+      "back_end_only": true,
+      "volatile": true,
+      "fields": {
+        "user": {
+          "type": "object_id",
+          "object_types": [
+            "user"
+          ],
+          "required": true
+        },
+        "job_code": {
+          "type": "string",
+          "required": true
+        },
+        "input": {
+          "type": "array:struct",
+          "schema": "key_value"
+        },
+        "output": {
+          "type": "array:struct",
+          "schema": "key_value"
+        },
+        "completed": {
+          "type": "boolean",
+          "default": false
+        },
+        "read": {
+          "type": "boolean",
+          "default": false
+        },
+        "delete_at": {
+          "type": "date"
+        }
+      }
+    },
+    "file": {
+      "code": "06",
+      "volatile": true,
+      "GET": "any",
+      "PUT": "self",
+      "fields": {
+        "mime_type": {
+          "type": "string",
+          "required": true,
+          "edit_mode": "E"
+        },
+        "user": {
+          "type": "object_id",
+          "object_types": [
+            "user"
+          ],
+          "required": true,
+          "auto_value": "req.user"
+        },
+        "upload_url": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string",
+          "required": true
+        },
+        "title": {
+          "type": "string",
+          "min": 1,
+          "max": 256,
+          "edit_mode": "E"
+        },
+        "size": {
+          "type": "integer"
+        },
+        "dimensions": {
+          "type": "struct",
+          "schema": "dimension"
+        },
+        "resizes": {
+          "type": "array:struct",
+          "schema": "resize"
+        },
+        "hosted": {
+          "type": "boolean",
+          "default": false
+        },
+        "uploaded": {
+          "type": "boolean",
+          "default": false,
+          "edit_mode": "NC"
+        },
+        "standalone": {
+          "type": "boolean",
+          "default": true
+        }
+      }
+    },
+    "schedule": {
+      "code": "07",
+      "back_end_only": true,
+      "volatile": true,
+      "fields": {
+        "listener": {
+          "type": "string",
+          "required": true,
+          "edit_mode": "NE"
+        },
+        "schedule_code": {
+          "type": "string",
+          "required": true
+        },
+        "time": {
+          "type": "struct",
+          "schema": "time",
+          "required": true,
+          "edit_mode": "NE"
+        },
+        "date": {
+          "type": "struct",
+          "schema": "date",
+          "edit_mode": "NE"
+        },
+        "repeat": {
+          "type": "string",
+          "enum": [
+            "daily",
+            "weekly",
+            "monthly",
+            "yearly"
+          ],
+          "edit_mode": "NE"
+        }
+      }
+    },
+    "schedule_event": {
+      "code": "08",
+      "back_end_only": true,
+      "volatile": true,
+      "fields": {
+        "schedule": {
+          "type": "object_id",
+          "object_types": [
+            "schedule"
+          ],
+          "required": true
+        },
+        "schedule_code": {
+          "type": "string",
+          "required": true
+        },
+        "listener": {
+          "type": "string",
+          "required": true
+        }
+      }
+    },
+    "secret_organization": {
+      "code": "09",
+      "suppress_event": true,
+      "back_end_only": true,
+      "fields": {
+        "secret_keys": {
+          "type": "array:struct",
+          "schema": "key_value",
+          "required": true
+        }
+      }
+    },
+    "customer_role": {
+      "code": "10",
+      "GET": "self",
+      "fields": {
+        "user": {
+          "type": "object_id",
+          "object_types": [
+            "user"
+          ],
+          "required": true
+        }
+      }
+    },
+    "admin_role": {
+      "code": "11",
+      "GET": "self",
+      "fields": {
+        "user": {
+          "type": "object_id",
+          "object_types": [
+            "user"
+          ],
+          "required": true
+        }
+      },
+      "edges": {
+        "offending_posts": {
+          "contains": [
+            "post"
+          ],
+          "GET": "self",
+          "DELETE": "self"
+        }
+      }
+    },
+    "post": {
+      "code": "12",
+      "GET": "any",
+      "PUT": "self",
+      "DELETE": "self",
+      "fields": {
+        "creator": {
+          "type": "object_id",
+          "object_types": [
+            "user"
+          ],
+          "required": true,
+          "auto_value": "req.user"
+        },
+        "image": {
+          "type": "object_id",
+          "object_types": [
+            "file"
+          ],
+          "required": true,
+          "edit_mode": "NE"
+        },
+        "desc": {
+          "type": "string",
+          "required": true,
+          "edit_mode": "E",
+          "min": 2,
+          "max": 4096
+        }
+      },
+      "edges": {
+        "comments": {
+          "contains": [
+            "comment"
+          ],
+          "GET": "any",
+          "POST": "registered_user"
+        },
+        "offended": {
+          "contains": [
+            "user"
+          ],
+          "GET": "admin_role",
+          "POST": "registered_user"
+        }
+      }
+    },
+    "comment": {
+      "code": "13",
+      "GET": "any",
+      "PUT": "self",
+      "DELETE": "self",
+      "fields": {
+        "creator": {
+          "type": "object_id",
+          "object_types": [
+            "user"
+          ],
+          "required": true,
+          "auto_value": "req.user"
+        },
+        "post": {
+          "type": "object_id",
+          "object_types": [
+            "post"
+          ],
+          "required": true,
+          "auto_value": "src.id"
+        },
+        "text": {
+          "type": "string",
+          "required": true,
+          "edit_mode": "E",
+          "min": 2,
+          "max": 2048
+        }
+      }
+    },
+    "objects": {
+      "secret_organization": "73728adc-5fd1-479f-b137-340eb4ae6969-09"
+    },
+    "pagination": {
+      "default_count": 25,
+      "max_count": 50,
+      "pagination_mode": "index"
+    }
+  }
+}

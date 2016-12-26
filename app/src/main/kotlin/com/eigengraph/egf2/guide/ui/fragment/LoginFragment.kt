@@ -13,6 +13,7 @@ import com.eigengraph.egf2.framework.RegisterModel
 import com.eigengraph.egf2.guide.ui.MainActivity
 import com.eigengraph.egf2.guide.ui.anko.LoginFragmentLayout
 import com.eigengraph.egf2.guide.ui.anko.RegistrationUI
+import com.eigengraph.egf2.guide.util.parseError
 import com.eigengraph.egf2.guide.util.snackbar
 import com.jakewharton.rxbinding.widget.RxTextView
 import com.wdullaer.materialdatetimepicker.date.DatePickerDialog
@@ -44,7 +45,7 @@ class LoginFragment : Fragment() {
 					activity.startActivity<MainActivity>()
 					activity.finishAffinity()
 				}, {
-					view?.snackbar(it.message.toString())
+					view?.snackbar(parseError(it.message.toString()))
 				})
 	}
 
@@ -93,7 +94,7 @@ class LoginFragment : Fragment() {
 						activity.startActivity<MainActivity>()
 						activity.finishAffinity()
 					}, {
-						view?.snackbar(it.message.toString())
+						view?.snackbar(parseError(it.message.toString()))
 					})
 		}
 

@@ -21,6 +21,7 @@ class AccountLayout : IFragmentLayout {
 					(fragment as AccountFragment).avatarBackground = verticalLayout {
 						bottomPadding = dip(16)
 						backgroundColor = resources.getColor(R.color.colorPrimary)
+						gravity = Gravity.CENTER
 						(fragment as AccountFragment).avatar = imageView {
 							imageResource = R.drawable.account
 						}.lparams(width = dip(72), height = dip(72)) {
@@ -41,6 +42,10 @@ class AccountLayout : IFragmentLayout {
 							textSize = 14f
 							setShadowLayer(5.0f, 2.0f, 2.0f, Color.BLACK)
 						}.lparams(matchParent, wrapContent)
+						(fragment as AccountFragment).verify = button {
+							text = "Resent verify email"
+							visibility = View.GONE
+						}.lparams(wrapContent, dip(36))
 					}.lparams(matchParent, wrapContent)
 
 					(fragment as AccountFragment).swipe = swipeRefreshLayout {

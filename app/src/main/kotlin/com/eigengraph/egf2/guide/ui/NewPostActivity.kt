@@ -25,6 +25,7 @@ import com.eigengraph.egf2.guide.models.EGF2File
 import com.eigengraph.egf2.guide.models.EGF2Post
 import com.eigengraph.egf2.guide.models.EGF2User
 import com.eigengraph.egf2.guide.ui.anko.NewPostActivityLayout
+import com.eigengraph.egf2.guide.util.parseError
 import com.eigengraph.egf2.guide.util.snackbar
 import java.io.File
 import java.util.*
@@ -81,7 +82,7 @@ class NewPostActivity : AppCompatActivity() {
 							progress?.visibility = View.GONE
 							finish()
 						}, {
-							container?.snackbar(it.message.toString())
+							container?.snackbar(parseError(it.message.toString()))
 							progress?.visibility = View.GONE
 						})
 			}
