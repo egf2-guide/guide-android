@@ -23,13 +23,15 @@
         </activity>
         <activity
                 android:name=".ui.MainActivity"
-                android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+                android:theme="@style/AppTheme.NoActionBar"/>
 
         <activity
                 android:name=".ui.NewPostActivity"
-                android:theme="@style/AppTheme.NoActionBar">
-        </activity>
+                android:theme="@style/AppTheme.NoActionBar"/>
+
+        <activity
+                android:name=".ui.PostActivity"
+                android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

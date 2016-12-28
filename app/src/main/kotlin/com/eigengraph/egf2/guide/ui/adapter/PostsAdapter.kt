@@ -7,6 +7,7 @@ import com.eigengraph.egf2.guide.models.EGF2Post
 import com.eigengraph.egf2.guide.models.EGF2User
 import com.eigengraph.egf2.guide.ui.adapter.holder.PostItemViewHolder
 import com.eigengraph.egf2.guide.ui.anko.PostItemUI
+import com.eigengraph.egf2.guide.util.RecyclerClickListener
 import java.util.*
 
 class PostsAdapter : RecyclerView.Adapter<PostItemViewHolder> {
@@ -16,10 +17,13 @@ class PostsAdapter : RecyclerView.Adapter<PostItemViewHolder> {
 	val images: HashMap<String, EGF2File>
 	val creators: HashMap<String, EGF2User>
 
-	constructor(li: ArrayList<EGF2Post>, mapImage: HashMap<String, EGF2File>, mapCreator: HashMap<String, EGF2User>) {
+	private val listener: RecyclerClickListener
+
+	constructor(li: ArrayList<EGF2Post>, mapImage: HashMap<String, EGF2File>, mapCreator: HashMap<String, EGF2User>, listener: RecyclerClickListener) {
 		list = li
 		images = mapImage
 		creators = mapCreator
+		this.listener = listener
 	}
 
 	override fun onBindViewHolder(holder: PostItemViewHolder?, position: Int) {
@@ -28,6 +32,6 @@ class PostsAdapter : RecyclerView.Adapter<PostItemViewHolder> {
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): PostItemViewHolder {
-		return PostItemViewHolder(PostItemUI().bind(parent!!))
+		return PostItemViewHolder(PostItemUI().bind(parent!!), listener)
 	}
 }

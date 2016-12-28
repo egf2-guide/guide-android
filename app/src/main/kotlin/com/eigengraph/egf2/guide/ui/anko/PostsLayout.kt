@@ -16,7 +16,7 @@ class PostsLayout(val postsAdapter: PostsAdapter) : IFragmentLayout {
 			fragment.UI {
 				(fragment as PostsFragment).swipe = swipeRefreshLayout {
 					id = R.id.swipe
-					recyclerView {
+					(fragment as PostsFragment).recyclerView = recyclerView {
 						id = R.id.list
 						lparams(matchParent, matchParent)
 						layoutManager = LinearLayoutManager(ctx)

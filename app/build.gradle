@@ -74,8 +74,7 @@ dependencies {
 }
 
 repositories {
-    maven {
-        url "https://dl.bintray.com/dmitry-shingarev/egf2-android-client"
-    }
+    maven { url uri('../repo') }
+    maven { url "https://dl.bintray.com/dmitry-shingarev/egf2-android-client" }
     maven { url 'https://jitpack.io' }
 }

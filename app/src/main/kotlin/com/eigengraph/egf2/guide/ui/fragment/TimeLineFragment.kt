@@ -17,6 +17,7 @@ import com.eigengraph.egf2.guide.models.EGF2Post
 import com.eigengraph.egf2.guide.models.EGF2User
 import com.eigengraph.egf2.guide.ui.adapter.PostsAdapter
 import com.eigengraph.egf2.guide.ui.anko.TimeLineLayout
+import com.eigengraph.egf2.guide.util.RecyclerClickListener
 import com.jakewharton.rxbinding.support.v7.widget.RxSearchView
 import com.jakewharton.rxbinding.support.v7.widget.SearchViewQueryTextEvent
 import rx.Observable
@@ -44,7 +45,11 @@ class TimeLineFragment : Fragment() {
 	private var sub: Subscription? = null
 
 	override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-		adapter = PostsAdapter(list, mapImage, mapCreator)
+		adapter = PostsAdapter(list, mapImage, mapCreator, object : RecyclerClickListener {
+			override fun onElementClick(position: Int) {
+
+			}
+		})
 		layout = TimeLineLayout(adapter)
 		return layout.bind(this)
 	}

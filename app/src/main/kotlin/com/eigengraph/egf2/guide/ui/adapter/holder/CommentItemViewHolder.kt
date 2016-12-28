@@ -2,17 +2,13 @@ package com.eigengraph.egf2.guide.ui.adapter.holder
 
 import android.support.v7.widget.RecyclerView
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
-import com.bumptech.glide.Glide
 import com.eigengraph.egf2.guide.R
-import com.eigengraph.egf2.guide.models.EGF2File
-import com.eigengraph.egf2.guide.models.EGF2Post
+import com.eigengraph.egf2.guide.models.EGF2Comment
 import com.eigengraph.egf2.guide.models.EGF2User
 import com.eigengraph.egf2.guide.util.RecyclerClickListener
 
-class PostItemViewHolder(itemView: View, listener: RecyclerClickListener) : RecyclerView.ViewHolder(itemView) {
-	val imageView = itemView.findViewById(R.id.post_item_image) as ImageView
+class CommentItemViewHolder(itemView: View, listener: RecyclerClickListener) : RecyclerView.ViewHolder(itemView) {
 	val text = itemView.findViewById(R.id.post_item_text) as TextView
 	val author = itemView.findViewById(R.id.post_item_creator) as TextView
 
@@ -20,16 +16,11 @@ class PostItemViewHolder(itemView: View, listener: RecyclerClickListener) : Recy
 		itemView.setOnClickListener { listener.onElementClick(adapterPosition) }
 	}
 
-	fun bind(post: EGF2Post, image: EGF2File?, creator: EGF2User?) {
-		text.text = post.desc
+	fun bind(comment: EGF2Comment, creator: EGF2User?) {
+		text.text = comment.text
 
 		author.text = ""
 
 		creator?.let { author.text = creator.email }
-
-		Glide.with(itemView.context)
-				.load(image?.url)
-				.fitCenter()
-				.into(imageView)
 	}
 }
