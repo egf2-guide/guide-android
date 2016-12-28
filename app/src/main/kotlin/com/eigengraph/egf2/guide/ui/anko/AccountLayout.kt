@@ -43,7 +43,7 @@ class AccountLayout : IFragmentLayout {
 							setShadowLayer(5.0f, 2.0f, 2.0f, Color.BLACK)
 						}.lparams(matchParent, wrapContent)
 						(fragment as AccountFragment).verify = button {
-							text = "Resent verify email"
+							text = "Resend verify email"
 							visibility = View.GONE
 						}.lparams(wrapContent, dip(36))
 					}.lparams(matchParent, wrapContent)
