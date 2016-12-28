@@ -11,6 +11,7 @@ import com.eigengraph.egf2.framework.EGF2
 import com.eigengraph.egf2.framework.LoginModel
 import com.eigengraph.egf2.framework.RegisterModel
 import com.eigengraph.egf2.guide.ui.MainActivity
+import com.eigengraph.egf2.guide.ui.anko.ForgotUI
 import com.eigengraph.egf2.guide.ui.anko.LoginFragmentLayout
 import com.eigengraph.egf2.guide.ui.anko.RegistrationUI
 import com.eigengraph.egf2.guide.util.parseError
@@ -130,6 +131,27 @@ class LoginFragment : Fragment() {
 	}
 
 	fun forgot() {
+		val dialog = AlertDialog.Builder(activity)
+				.setTitle("Forgot Password")
+				.setView(ForgotUI().bind(this))
+				.setPositiveButton("OK", { dialogInterface, i -> })
+				.setNegativeButton("CANCEL", { dialogInterface, i -> })
+				.create()
+		dialog.show()
 
+		val btn = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
+
+		btn.setOnClickListener {
+			EGF2.forgotPassword(email?.text.toString().trim())
+					.subscribe({
+						dialog.dismiss()
+					}, {
+						view?.snackbar(parseError(it.message.toString()))
+					})
+		}
+
+		RxTextView.textChanges(email as EditText).subscribe({
+			btn.isEnabled = it.isNotEmpty()
+		}, {})
 	}
 }

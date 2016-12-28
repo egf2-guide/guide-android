@@ -65,7 +65,7 @@ class LoginFragmentLayout : IFragmentLayout {
 						}
 					}
 					tintedTextView {
-						topPadding = dip(4)
+						topPadding = dip(8)
 						text = resources.getString(R.string.login_forgot)
 						gravity = Gravity.CENTER
 						onClick {
