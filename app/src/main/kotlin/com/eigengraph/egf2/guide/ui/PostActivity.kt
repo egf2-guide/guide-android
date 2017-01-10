@@ -1,8 +1,11 @@
 package com.eigengraph.egf2.guide.ui
 
 import android.os.Bundle
+import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.app.AppCompatActivity
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.view.Menu
 import android.view.MenuItem
 import android.widget.EditText
 import android.widget.ImageButton
@@ -11,6 +14,8 @@ import android.widget.TextView
 import com.bumptech.glide.Glide
 import com.eigengraph.egf2.framework.EGF2
 import com.eigengraph.egf2.framework.EGF2Bus
+import com.eigengraph.egf2.guide.DataManager
+import com.eigengraph.egf2.guide.R
 import com.eigengraph.egf2.guide.models.EGF2Comment
 import com.eigengraph.egf2.guide.models.EGF2File
 import com.eigengraph.egf2.guide.models.EGF2Post
@@ -33,12 +38,18 @@ class PostActivity : AppCompatActivity() {
 	var list: RecyclerView? = null
 	var send: ImageButton? = null
 	var message: EditText? = null
+	var swipe: SwipeRefreshLayout? = null
 
 	private var listComment = ArrayList<EGF2Comment>()
 	private lateinit var adapter: CommentsAdapter
 	private var mapCreator = HashMap<String, EGF2User>()
 
 	private lateinit var post: EGF2Post
+
+	private var isEndPage = false
+	private var isLoading = false
+	private var after: EGF2Comment? = null
+	private var isOffended = false
 
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
@@ -64,21 +75,44 @@ class PostActivity : AppCompatActivity() {
 
 		list?.adapter = adapter
 
-		getComments(false)
+		getComments(true)
 
 		EGF2Bus.subscribeForEdge(EGF2Bus.EVENT.EDGE_ADDED, post.id, EGF2Post.EDGE_COMMENTS, Action1 {
 			list?.snackbar("EDGE_ADDED")
-			getComments(false)
+			getComments(true)
 		})
+
+		swipe?.setOnRefreshListener {
+			isEndPage = false
+			after = null
+			getComments(false)
+		}
+
+		if (post.creator != DataManager.user?.id) {
+			EGF2.getEdgeObject(post.id, EGF2Post.EDGE_OFFENDED, DataManager.user?.id as String, null, false, EGF2User::class.java)
+					.subscribe({
+						isOffended = false
+						supportInvalidateOptionsMenu()
+					}, {
+						isOffended = true
+						supportInvalidateOptionsMenu()
+					})
+		}
 	}
 
 	private fun getComments(useCache: Boolean) {
-		EGF2.getEdgeObjects(post.id, EGF2Post.EDGE_COMMENTS, null, EGF2.DEF_COUNT, arrayOf("creator"), useCache, EGF2Comment::class.java)
+		swipe?.isRefreshing = true
+		isLoading = true
+		EGF2.getEdgeObjects(post.id, EGF2Post.EDGE_COMMENTS, after, EGF2.DEF_COUNT, arrayOf("creator"), useCache, EGF2Comment::class.java)
 				.subscribe({
 					if (EGF2.isFirstPage(it)) listComment.clear()
 
+					if (it.last == null) isEndPage = true
+
 					listComment.addAll(it.results as ArrayList<EGF2Comment>)
 					adapter.notifyDataSetChanged()
+
+					after = if (listComment.isNotEmpty()) listComment[listComment.size - 1] else null
 
 					val c = ArrayList<Observable<EGF2User>>()
 					listComment.forEach {
@@ -90,9 +124,12 @@ class PostActivity : AppCompatActivity() {
 							mapCreator.put((it as EGF2User).id, it)
 						}
 						adapter.notifyDataSetChanged()
-
 					}, {})
+					if (swipe?.isRefreshing as Boolean) swipe?.isRefreshing = false
+					isLoading = false
 				}, {
+					if (swipe?.isRefreshing as Boolean) swipe?.isRefreshing = false
+					isLoading = false
 				})
 	}
 
@@ -101,9 +138,36 @@ class PostActivity : AppCompatActivity() {
 		super.onDestroy()
 	}
 
+	override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+		menuInflater?.inflate(R.menu.post, menu)
+		if (post.creator != DataManager.user?.id) {
+			menu?.findItem(R.id.action_offended)?.isEnabled = false
+		} else {
+			menu?.findItem(R.id.action_offended)?.isVisible = false
+		}
+		return true//super.onCreateOptionsMenu(menu)
+	}
+
+	override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
+		menu?.findItem(R.id.action_offended)?.isEnabled = isOffended
+		return super.onPrepareOptionsMenu(menu)
+	}
+
 	override fun onOptionsItemSelected(item: MenuItem?): Boolean {
 		if (item?.itemId == android.R.id.home) finish()
+		if (item?.itemId == R.id.action_offended) offended()
 		return super.onOptionsItemSelected(item)
+	}
+
+	private fun offended() {
+		EGF2.createEdge(post.id, EGF2Post.EDGE_OFFENDED, DataManager.user as EGF2User)
+				.subscribe({
+					isOffended = false
+					supportInvalidateOptionsMenu()
+				}, {
+					isOffended = false
+					supportInvalidateOptionsMenu()
+				})
 	}
 
 	fun sendMessage() {
@@ -118,5 +182,20 @@ class PostActivity : AppCompatActivity() {
 				}, {
 					list?.snackbar(it.message.toString())
 				})
+	}
+
+	val scrollListener = object : RecyclerView.OnScrollListener() {
+		override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+			super.onScrollStateChanged(recyclerView, newState)
+
+			val layoutManager = recyclerView?.layoutManager as LinearLayoutManager
+			val visibleItemsCount = layoutManager.childCount
+			val totalItemsCount = layoutManager.itemCount
+			val firstVisibleItemPos = layoutManager.findFirstVisibleItemPosition()
+
+			if (visibleItemsCount + firstVisibleItemPos >= totalItemsCount && !isEndPage && !isLoading) {
+				getComments(true)
+			}
+		}
 	}
 }

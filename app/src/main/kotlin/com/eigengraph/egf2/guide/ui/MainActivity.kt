@@ -20,14 +20,13 @@ import com.eigengraph.egf2.guide.ui.fragment.PostsFragment
 import com.eigengraph.egf2.guide.ui.fragment.TimeLineFragment
 import com.eigengraph.egf2.guide.util.parseError
 import com.eigengraph.egf2.guide.util.snackbar
-import io.realm.RealmConfiguration
 
 
 class MainActivity : AppCompatActivity() {
 
 	var container: FrameLayout? = null
 	var fab: FloatingActionButton? = null
-    var coordinatorLayout: CoordinatorLayout? = null
+	var coordinatorLayout: CoordinatorLayout? = null
 
 	private val mainLayout = MainActivityLayout()
 
@@ -44,7 +43,7 @@ class MainActivity : AppCompatActivity() {
 					verify()
 				}
 			}, {
-                coordinatorLayout?.snackbar(parseError(it.message.toString()))
+				coordinatorLayout?.snackbar(parseError(it.message.toString()))
 			})
 		}
 

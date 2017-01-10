@@ -13,4 +13,5 @@
     <string name="hint_last_name">Last Name</string>
     <string name="hint_dob">Day of Birthday</string>
     <string name="hint_pass2">Confirm Password</string>
+    <string name="action_offended">OFFENDED</string>
 </resources>

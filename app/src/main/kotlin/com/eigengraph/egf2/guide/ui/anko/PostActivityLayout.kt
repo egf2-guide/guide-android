@@ -24,6 +24,7 @@ import org.jetbrains.anko.design.appBarLayout
 import org.jetbrains.anko.design.collapsingToolbarLayout
 import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.recyclerview.v7.recyclerView
+import org.jetbrains.anko.support.v4.swipeRefreshLayout
 
 class PostActivityLayout : IActivityLayout {
 	override fun bind(activity: AppCompatActivity): View = activity.UI {
@@ -62,7 +63,7 @@ class PostActivityLayout : IActivityLayout {
 						(layoutParams as CollapsingToolbarLayout.LayoutParams).collapseMode = CollapsingToolbarLayout.LayoutParams.COLLAPSE_MODE_PIN
 					}
 				}.lparams(matchParent, matchParent)
-			}.lparams(matchParent, dip(300))
+			}.lparams(matchParent, dip(250))
 
 
 			verticalLayout {
@@ -85,12 +86,15 @@ class PostActivityLayout : IActivityLayout {
 					}.lparams(width = matchParent, height = wrapContent)
 				}
 
-				(activity as PostActivity).list = recyclerView {
-					clipToPadding = true
-					layoutManager = LinearLayoutManager(ctx, LinearLayoutManager.VERTICAL, true)
-					bottomPadding = p48
-				}.lparams(matchParent, matchParent) {
-					weight = 1f
+				(activity as PostActivity).swipe = swipeRefreshLayout {
+					(activity as PostActivity).list = recyclerView {
+						clipToPadding = true
+						layoutManager = LinearLayoutManager(ctx, LinearLayoutManager.VERTICAL, false)
+						bottomPadding = p48
+						addOnScrollListener((activity as PostActivity).scrollListener)
+					}.lparams(matchParent, wrapContent) {
+						//weight = 1f
+					}
 				}
 
 			}.lparams(width = matchParent, height = matchParent) {
@@ -118,7 +122,8 @@ class PostActivityLayout : IActivityLayout {
 			}
 		}
 
-		(collapsingToolbar?.layoutParams as AppBarLayout.LayoutParams).scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
+		//(collapsingToolbar?.layoutParams as AppBarLayout.LayoutParams).scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL or AppBarLayout.LayoutParams.SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
+		(collapsingToolbar?.layoutParams as AppBarLayout.LayoutParams).scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_SNAP
 
 	}.view
 

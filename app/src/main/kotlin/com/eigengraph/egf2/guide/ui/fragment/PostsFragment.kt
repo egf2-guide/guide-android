@@ -3,6 +3,7 @@ package com.eigengraph.egf2.guide.ui.fragment
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
 import android.util.Log
 import android.view.LayoutInflater
@@ -45,6 +46,10 @@ class PostsFragment : Fragment() {
 	var swipe: SwipeRefreshLayout? = null
 	var recyclerView: RecyclerView? = null
 
+	private var isEndPage = false
+	private var isLoading = false
+	private var after: EGF2Post? = null
+
 	override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		Log.d(PostsFragment::class.java.simpleName, "onCreateView")
 		adapter = PostsAdapter(list, mapImage, mapCreator, object : RecyclerClickListener {
@@ -64,6 +69,7 @@ class PostsFragment : Fragment() {
 
 	override fun onActivityCreated(savedInstanceState: Bundle?) {
 		super.onActivityCreated(savedInstanceState)
+		recyclerView?.addOnScrollListener(scrollListener)
 		Log.d(PostsFragment::class.java.simpleName, "onActivityCreated")
 		if (DataManager.user != null) {
 			subscribe()
@@ -76,6 +82,8 @@ class PostsFragment : Fragment() {
 		}
 
 		swipe?.setOnRefreshListener {
+			isEndPage = false
+			after = null
 			getPosts(DataManager.user as EGF2User, false)
 		}
 
@@ -85,14 +93,15 @@ class PostsFragment : Fragment() {
 	}
 
 	private fun getPosts(it: EGF2User, useCache: Boolean = true) {
+		isLoading = true
 		swipe?.isRefreshing = true
-		EGF2.getEdgeObjects(it.id, EGF2User.EDGE_POSTS, null, EGF2.DEF_COUNT, arrayOf("image", "creator"), useCache, EGF2Post::class.java)
+		EGF2.getEdgeObjects(it.id, EGF2User.EDGE_POSTS, after, EGF2.DEF_COUNT, arrayOf("image", "creator"), useCache, EGF2Post::class.java)
 				.subscribe({
 					if (EGF2.isFirstPage(it)) list.clear()
-
+					if (it.last == null) isEndPage = true
 					list.addAll(it.results as ArrayList<EGF2Post>)
 					adapter.notifyDataSetChanged()
-
+					after = if (list.isNotEmpty()) list[list.size - 1] else null
 					val l = ArrayList<Observable<EGF2File>>()
 					val c = ArrayList<Observable<EGF2User>>()
 					list.forEach {
@@ -115,10 +124,11 @@ class PostsFragment : Fragment() {
 					}, {})
 
 					if (swipe?.isRefreshing as Boolean) swipe?.isRefreshing = false
-
+					isLoading = false
 					Log.d(PostsFragment::class.java.simpleName, "getEdgeObjects onNext")
 				}, {
 					if (swipe?.isRefreshing as Boolean) swipe?.isRefreshing = false
+					isLoading = false
 					Log.d(PostsFragment::class.java.simpleName, "getEdgeObjects onError")
 				})
 	}
@@ -153,5 +163,20 @@ class PostsFragment : Fragment() {
 		sub?.unsubscribe()
 		layout.unbind(this)
 		super.onDestroyView()
+	}
+
+	val scrollListener = object : RecyclerView.OnScrollListener() {
+		override fun onScrollStateChanged(recyclerView: RecyclerView?, newState: Int) {
+			super.onScrollStateChanged(recyclerView, newState)
+
+			val layoutManager = recyclerView?.layoutManager as LinearLayoutManager
+			val visibleItemsCount = layoutManager.childCount
+			val totalItemsCount = layoutManager.itemCount
+			val firstVisibleItemPos = layoutManager.findFirstVisibleItemPosition()
+
+			if (visibleItemsCount + firstVisibleItemPos >= totalItemsCount && !isEndPage && !isLoading) {
+				getPosts(DataManager.user as EGF2User, true)
+			}
+		}
 	}
 }

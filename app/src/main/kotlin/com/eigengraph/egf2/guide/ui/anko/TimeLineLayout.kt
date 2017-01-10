@@ -22,6 +22,7 @@ class TimeLineLayout(val postsAdapter: PostsAdapter) : IFragmentLayout {
 						lparams(matchParent, wrapContent)
 						layoutManager = LinearLayoutManager(ctx)
 						adapter = postsAdapter
+						addOnScrollListener((fragment as TimeLineFragment).scrollListener)
 					}
 				}
 			}.view
