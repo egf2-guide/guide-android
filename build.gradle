@@ -1,8 +1,8 @@
 buildscript {
-    ext.kotlin_version = '1.0.5-2'
+    ext.kotlin_version = '1.0.6'
     ext.support = '25.1.0'
     ext.retrofit = '2.1.0'
-    ext.rxjava = '1.2.3'
+    ext.rxjava = '1.2.5'
     ext.rxandroid = '1.2.1'
     ext.okhttp = '3.5.0'
     ext.gson = '2.8.0'
@@ -10,20 +10,19 @@ buildscript {
     ext.anko = '0.9'
     ext.rxbinding = '1.0.0'
 
-    ext.buildToolsVersion = "25.0.1"
+    ext.buildToolsVersion = "25.0.2"
     ext.compileVersion = 25
     ext.minSdk = 16
     ext.targetSdk = 25
     ext.versionCode = 1
-    ext.versionName = "1.0.2"
+    ext.versionName = "1.0.3"
     ext.group = "com.eigengraph.egf2"
 
     repositories {
+        maven { url uri('repo') }
         mavenCentral()
         jcenter()
-        maven {
-            url "https://dl.bintray.com/dmitry-shingarev/egf2-android-client"
-        }
+        maven { url "https://dl.bintray.com/dmitry-shingarev/egf2-android-client" }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.0'
@@ -36,6 +35,7 @@ buildscript {
 
 allprojects {
     repositories {
+        maven { url uri('repo') }
         mavenCentral()
         jcenter()
     }
