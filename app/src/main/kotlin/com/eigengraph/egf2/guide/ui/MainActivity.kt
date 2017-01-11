@@ -20,6 +20,7 @@ import com.eigengraph.egf2.guide.ui.fragment.PostsFragment
 import com.eigengraph.egf2.guide.ui.fragment.TimeLineFragment
 import com.eigengraph.egf2.guide.util.parseError
 import com.eigengraph.egf2.guide.util.snackbar
+import io.realm.RealmConfiguration
 
 
 class MainActivity : AppCompatActivity() {

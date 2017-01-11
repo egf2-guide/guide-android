@@ -1,7 +1,9 @@
 package com.eigengraph.egf2.guide.ui
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
@@ -21,8 +23,9 @@ import com.eigengraph.egf2.guide.models.EGF2File
 import com.eigengraph.egf2.guide.models.EGF2Post
 import com.eigengraph.egf2.guide.models.EGF2User
 import com.eigengraph.egf2.guide.ui.adapter.CommentsAdapter
+import com.eigengraph.egf2.guide.ui.anko.CommentUI
 import com.eigengraph.egf2.guide.ui.anko.PostActivityLayout
-import com.eigengraph.egf2.guide.util.RecyclerClickListener
+import com.eigengraph.egf2.guide.util.CommentClickListener
 import com.eigengraph.egf2.guide.util.snackbar
 import rx.Observable
 import rx.functions.Action1
@@ -51,6 +54,8 @@ class PostActivity : AppCompatActivity() {
 	private var after: EGF2Comment? = null
 	private var isOffended = false
 
+	var comment: EditText? = null
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContentView(postLayout.bind(this))
@@ -68,8 +73,44 @@ class PostActivity : AppCompatActivity() {
 
 		text?.text = post.desc
 
-		adapter = CommentsAdapter(listComment, mapCreator, object : RecyclerClickListener {
+		adapter = CommentsAdapter(listComment, mapCreator, (post.creator == DataManager.user?.id), object : CommentClickListener {
+			override fun onEditClick(position: Int) {
+				val comm = listComment[position]
+				AlertDialog.Builder(this@PostActivity)
+						.setTitle("Edit Comment")
+						.setView(CommentUI().bind(this@PostActivity))
+						.setPositiveButton("SAVE", DialogInterface.OnClickListener { dialogInterface, i ->
+							comm.text = comment?.text.toString()
+							EGF2.updateObject(comm.id, comm.update(), EGF2Comment::class.java)
+									.subscribe({
+										adapter.notifyDataSetChanged()
+									}, {
+										list?.snackbar(it.message.toString())
+									})
+						})
+						.setNegativeButton("CANCEL", DialogInterface.OnClickListener { dialogInterface, i -> })
+						.show()
+
+				comment?.setText(comm.text)
+			}
+
+			override fun onDeleteClick(position: Int) {
+				AlertDialog.Builder(this@PostActivity)
+						.setTitle("Delete Comment?")
+						.setPositiveButton("Yes", DialogInterface.OnClickListener { dialogInterface, i ->
+							EGF2.deleteObjectFromEdge(post.id, EGF2Post.EDGE_COMMENTS, listComment[position])
+									.subscribe({
+
+									}, {
+										list?.snackbar(it.message.toString())
+									})
+						})
+						.setNegativeButton("No", DialogInterface.OnClickListener { dialogInterface, i -> })
+						.show()
+			}
+
 			override fun onElementClick(position: Int) {
+
 			}
 		})
 
@@ -80,6 +121,18 @@ class PostActivity : AppCompatActivity() {
 		EGF2Bus.subscribeForEdge(EGF2Bus.EVENT.EDGE_ADDED, post.id, EGF2Post.EDGE_COMMENTS, Action1 {
 			list?.snackbar("EDGE_ADDED")
 			getComments(true)
+		})
+
+		EGF2Bus.subscribeForEdge(EGF2Bus.EVENT.EDGE_REMOVED, post.id, EGF2Post.EDGE_COMMENTS, Action1 {
+			event ->
+			list?.snackbar("EDGE_REMOVED")
+			val iter = listComment.iterator()
+			while (iter.hasNext()) {
+				val user = iter.next()
+				if (user.id == event.obj?.getId())
+					iter.remove()
+			}
+			adapter.notifyDataSetChanged()
 		})
 
 		swipe?.setOnRefreshListener {
@@ -130,6 +183,7 @@ class PostActivity : AppCompatActivity() {
 				}, {
 					if (swipe?.isRefreshing as Boolean) swipe?.isRefreshing = false
 					isLoading = false
+					list?.snackbar(it.message.toString())
 				})
 	}
 
@@ -167,6 +221,7 @@ class PostActivity : AppCompatActivity() {
 				}, {
 					isOffended = false
 					supportInvalidateOptionsMenu()
+					list?.snackbar(it.message.toString())
 				})
 	}
 

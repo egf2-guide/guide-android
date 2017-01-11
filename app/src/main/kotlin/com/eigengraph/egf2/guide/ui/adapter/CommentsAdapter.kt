@@ -6,7 +6,7 @@ import com.eigengraph.egf2.guide.models.EGF2Comment
 import com.eigengraph.egf2.guide.models.EGF2User
 import com.eigengraph.egf2.guide.ui.adapter.holder.CommentItemViewHolder
 import com.eigengraph.egf2.guide.ui.anko.CommentItemUI
-import com.eigengraph.egf2.guide.util.RecyclerClickListener
+import com.eigengraph.egf2.guide.util.CommentClickListener
 import java.util.*
 
 class CommentsAdapter : RecyclerView.Adapter<CommentItemViewHolder> {
@@ -15,12 +15,15 @@ class CommentsAdapter : RecyclerView.Adapter<CommentItemViewHolder> {
 	val list: ArrayList<EGF2Comment>
 	val creators: HashMap<String, EGF2User>
 
-	private val listener: RecyclerClickListener
+	val isDeleteComment: Boolean
 
-	constructor(li: ArrayList<EGF2Comment>, mapCreator: HashMap<String, EGF2User>, listener: RecyclerClickListener) {
+	private val listener: CommentClickListener
+
+	constructor(li: ArrayList<EGF2Comment>, mapCreator: HashMap<String, EGF2User>, isDeleteComment: Boolean, listener: CommentClickListener) {
 		list = li
 		creators = mapCreator
 		this.listener = listener
+		this.isDeleteComment = isDeleteComment
 	}
 
 	override fun onBindViewHolder(holder: CommentItemViewHolder?, position: Int) {
@@ -29,6 +32,6 @@ class CommentsAdapter : RecyclerView.Adapter<CommentItemViewHolder> {
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): CommentItemViewHolder {
-		return CommentItemViewHolder(CommentItemUI().bind(parent!!), listener)
+		return CommentItemViewHolder(CommentItemUI().bind(parent!!), isDeleteComment, listener)
 	}
 }

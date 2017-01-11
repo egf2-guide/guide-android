@@ -11,4 +11,7 @@
     <item name="follow_item_name" type="id"/>
     <item name="follow_item_email" type="id"/>
     <item name="follow_item_unfollow" type="id"/>
+
+    <item name="comment_item_edit" type="id"/>
+    <item name="comment_item_delete" type="id"/>
 </resources>
