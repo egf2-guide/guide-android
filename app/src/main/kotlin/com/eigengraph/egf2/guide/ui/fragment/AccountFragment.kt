@@ -2,8 +2,11 @@ package com.eigengraph.egf2.guide.ui.fragment
 
 import android.os.Bundle
 import android.support.v4.app.Fragment
+import android.support.v4.view.MenuItemCompat
 import android.support.v4.widget.SwipeRefreshLayout
 import android.support.v7.widget.RecyclerView
+import android.support.v7.widget.SearchView
+import android.util.Log
 import android.view.*
 import android.widget.Button
 import android.widget.ImageView
@@ -19,11 +22,16 @@ import com.eigengraph.egf2.guide.ui.adapter.FollowsAdapter
 import com.eigengraph.egf2.guide.ui.anko.AccountLayout
 import com.eigengraph.egf2.guide.util.fullName
 import com.eigengraph.egf2.guide.util.snackbar
+import com.jakewharton.rxbinding.support.v7.widget.RxSearchView
+import com.jakewharton.rxbinding.support.v7.widget.SearchViewQueryTextEvent
 import org.jetbrains.anko.defaultSharedPreferences
 import org.jetbrains.anko.startActivity
+import rx.Observable
 import rx.Subscription
+import rx.android.schedulers.AndroidSchedulers
 import rx.functions.Action1
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 class AccountFragment : Fragment() {
@@ -37,7 +45,7 @@ class AccountFragment : Fragment() {
 	var email: TextView? = null
 	var recyclerView: RecyclerView? = null
 	var swipe: SwipeRefreshLayout? = null
-    var verify: Button? = null
+	var verify: Button? = null
 
 	private var layout = AccountLayout()
 
@@ -46,6 +54,8 @@ class AccountFragment : Fragment() {
 	private var list = ArrayList<EGF2User>()
 
 	private var adapter = FollowsAdapter(list)
+
+	private var isSearchCollapse = true
 
 	override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 		return layout.bind(this)
@@ -68,17 +78,17 @@ class AccountFragment : Fragment() {
 				}
 			})
 
-            if (!it.verified) {
-                verify?.visibility = View.VISIBLE
-                verify?.setOnClickListener {
-                    EGF2.resendEmailVerification()
-                            .subscribe({
-                                view?.snackbar("Please check the email, We have sent you an Verification Email")
-                            }, {
-                                view?.snackbar(it.message.toString())
-                            })
-                }
-            }
+			if (!it.verified) {
+				verify?.visibility = View.VISIBLE
+				verify?.setOnClickListener {
+					EGF2.resendEmailVerification()
+							.subscribe({
+								view?.snackbar("Please check the email, We have sent you an Verification Email")
+							}, {
+								view?.snackbar(it.message.toString())
+							})
+				}
+			}
 
 			getFollows(true)
 
@@ -97,8 +107,15 @@ class AccountFragment : Fragment() {
 				}
 				adapter.notifyDataSetChanged()
 			})
-		}
 
+			EGF2Bus.subscribeForEdge(EGF2Bus.EVENT.EDGE_ADDED, DataManager.user?.id as String, EGF2User.EDGE_FOLLOWS, Action1 {
+				event ->
+				if (isSearchCollapse) {
+					list.add(0, event.obj as EGF2User)
+					adapter.notifyDataSetChanged()
+				}
+			})
+		}
 	}
 
 	private fun getFollows(useCache: Boolean) {
@@ -116,6 +133,72 @@ class AccountFragment : Fragment() {
 
 	override fun onCreateOptionsMenu(menu: Menu?, inflater: MenuInflater?) {
 		inflater?.inflate(R.menu.account, menu)
+
+		val item = menu?.findItem(R.id.action_search)
+		val searchView = MenuItemCompat.getActionView(item) as SearchView
+
+		RxSearchView.queryTextChangeEvents(searchView)
+				.debounce {
+					if (it.queryText().isNullOrEmpty()) {
+						Observable.empty<SearchViewQueryTextEvent>()
+					} else {
+						Observable.empty<SearchViewQueryTextEvent>().delay(450, TimeUnit.MILLISECONDS)
+					}
+				}
+				.observeOn(AndroidSchedulers.mainThread())
+				.subscribe({
+					Log.d("SEARCH", it.toString())
+					if (it.queryText().isEmpty()) {
+						if (!isSearchCollapse) {
+							clearSearchList()
+						}
+					} else {
+						search(it.queryText().toString())
+					}
+				}, {
+					Log.d("SEARCH", it.toString())
+				})
+
+		MenuItemCompat.setOnActionExpandListener(item,
+				object : MenuItemCompat.OnActionExpandListener {
+					override fun onMenuItemActionCollapse(item: MenuItem): Boolean {
+						Log.d("SEARCH", "onMenuItemActionCollapse")
+						isSearchCollapse = true
+						swipe?.isEnabled = true
+						clearSearchList()
+						getFollows(true)
+						return true
+					}
+
+					override fun onMenuItemActionExpand(item: MenuItem): Boolean {
+						Log.d("SEARCH", "onMenuItemActionExpand")
+						isSearchCollapse = false
+						swipe?.isEnabled = false
+						clearSearchList()
+						return true
+					}
+				})
+	}
+
+	private fun search(text: String) {
+		swipe?.isRefreshing = true
+		//isEndPage = true
+		clearSearchList()
+		EGF2.search(text, "", EGF2.DEF_COUNT, "user", "first_name,last_name", "", "", "", "", EGF2User::class.java)
+				.subscribe({
+					adapter.unfollow(false)
+					list.addAll(it.results as ArrayList<EGF2User>)
+					adapter.notifyDataSetChanged()
+					swipe?.isRefreshing = false
+				}, {
+					swipe?.isRefreshing = false
+				})
+	}
+
+	private fun clearSearchList() {
+		list.clear()
+		adapter.notifyDataSetChanged()
+		swipe?.isRefreshing = false
 	}
 
 	override fun onOptionsItemSelected(item: MenuItem?): Boolean {

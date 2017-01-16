@@ -15,12 +15,20 @@ class FollowItemViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 	val email = itemView.findViewById(R.id.follow_item_email) as TextView
 	val unfollow = itemView.findViewById(R.id.follow_item_unfollow) as Button
 
-	fun bind(user: EGF2User) {
+	fun bind(user: EGF2User, unfoll: Boolean) {
 		name.text = user.name.fullName()
 		email.text = user.email
 
-		unfollow.setOnClickListener {
-			EGF2.deleteObjectFromEdge(DataManager.user?.id as String, EGF2User.EDGE_FOLLOWS, user).subscribe({}, {})
+		if (unfoll) {
+			unfollow.text = "UNFOLLOW"
+			this.unfollow.setOnClickListener {
+				EGF2.deleteObjectFromEdge(DataManager.user?.id as String, EGF2User.EDGE_FOLLOWS, user).subscribe({}, {})
+			}
+		} else {
+			unfollow.text = "FOLLOW"
+			this.unfollow.setOnClickListener {
+				EGF2.createEdge(DataManager.user?.id as String, EGF2User.EDGE_FOLLOWS, user).subscribe({}, {})
+			}
 		}
 	}
 }
