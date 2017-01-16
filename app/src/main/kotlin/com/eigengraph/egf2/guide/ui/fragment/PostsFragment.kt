@@ -134,6 +134,17 @@ class PostsFragment : Fragment() {
 	}
 
 	private fun subscribe() {
+		EGF2Bus.subscribeForObject(EGF2Bus.EVENT.OBJECT_UPDATED, null, Action1 {
+			event ->
+			Log.d(PostsFragment::class.java.simpleName, "subscribeForObject")
+			list.forEach {
+				if (it.id == event.obj?.getId()) {
+					it.desc = (event.obj as EGF2Post)?.desc
+				}
+			}
+			adapter.notifyDataSetChanged()
+		})
+
 		sub = EGF2Bus.subscribeForEdge(EGF2Bus.EVENT.EDGE_ADDED, DataManager.user?.id as String, EGF2User.EDGE_POSTS, Action1 {
 			Log.d(PostsFragment::class.java.simpleName, "subscribeForEdge")
 

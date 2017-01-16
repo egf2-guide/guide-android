@@ -7,9 +7,11 @@ import android.support.design.widget.CollapsingToolbarLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.Toolbar
+import android.text.InputType
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.EditorInfo
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -77,12 +79,24 @@ class PostActivityLayout : IActivityLayout {
 						rightPadding = p8
 						textSize = 12f
 					}.lparams(width = matchParent, height = wrapContent)
-					(activity as PostActivity).text = tintedTextView {
-						id = R.id.post_item_text
-						leftPadding = p8
-						rightPadding = p8
-						bottomPadding = p8
-						textSize = 16f
+					linearLayout {
+						orientation = LinearLayout.HORIZONTAL
+						(activity as PostActivity).text = tintedEditText {
+							id = R.id.post_item_text
+							leftPadding = p8
+							rightPadding = p8
+							bottomPadding = p8
+							textSize = 16f
+							inputType = InputType.TYPE_NULL
+							//inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE
+							imeOptions = EditorInfo.IME_FLAG_NO_ENTER_ACTION
+							singleLine = false
+							background = null
+						}.lparams(width = matchParent, height = wrapContent) { weight = 1f }
+						(activity as PostActivity).btnEdit = imageButton {
+							imageResource = R.drawable.border_color
+							visibility = View.GONE
+						}
 					}.lparams(width = matchParent, height = wrapContent)
 				}
 

@@ -7,8 +7,10 @@ import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
+import android.text.InputType
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.EditText
 import android.widget.ImageButton
 import android.widget.ImageView
@@ -27,6 +29,7 @@ import com.eigengraph.egf2.guide.ui.anko.CommentUI
 import com.eigengraph.egf2.guide.ui.anko.PostActivityLayout
 import com.eigengraph.egf2.guide.util.CommentClickListener
 import com.eigengraph.egf2.guide.util.snackbar
+import org.jetbrains.anko.imageResource
 import rx.Observable
 import rx.functions.Action1
 import java.util.*
@@ -36,12 +39,13 @@ class PostActivity : AppCompatActivity() {
 	private val postLayout = PostActivityLayout()
 
 	var imageView: ImageView? = null
-	var text: TextView? = null
+	var text: EditText? = null
 	var author: TextView? = null
 	var list: RecyclerView? = null
 	var send: ImageButton? = null
 	var message: EditText? = null
 	var swipe: SwipeRefreshLayout? = null
+	var btnEdit: ImageButton? = null
 
 	private var listComment = ArrayList<EGF2Comment>()
 	private lateinit var adapter: CommentsAdapter
@@ -53,6 +57,7 @@ class PostActivity : AppCompatActivity() {
 	private var isLoading = false
 	private var after: EGF2Comment? = null
 	private var isOffended = false
+	private var isDelete = false
 
 	var comment: EditText? = null
 
@@ -71,7 +76,7 @@ class PostActivity : AppCompatActivity() {
 
 		author?.text = creator.email
 
-		text?.text = post.desc
+		text?.setText(post.desc)
 
 		adapter = CommentsAdapter(listComment, mapCreator, (post.creator == DataManager.user?.id), object : CommentClickListener {
 			override fun onEditClick(position: Int) {
@@ -151,6 +156,36 @@ class PostActivity : AppCompatActivity() {
 						supportInvalidateOptionsMenu()
 					})
 		}
+
+		if (post.creator == DataManager.user?.id) {
+			//isDelete = true
+			//supportInvalidateOptionsMenu()
+
+			btnEdit?.visibility = View.VISIBLE
+			btnEdit?.setOnClickListener {
+				if (text?.inputType == InputType.TYPE_NULL) {
+					text?.isFocusable = true
+					text?.isFocusableInTouchMode = true
+					text?.inputType = InputType.TYPE_TEXT_FLAG_AUTO_COMPLETE or InputType.TYPE_TEXT_FLAG_MULTI_LINE or InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE
+					text?.requestFocus()
+					text?.setSelection(text?.text?.length as Int)
+					btnEdit?.imageResource = R.drawable.check_black
+				} else {
+					post.desc = text?.text.toString()
+					EGF2.updateObject(post.id, post.update(), EGF2Post::class.java)
+							.subscribe({
+
+							}, {
+								list?.snackbar(it.message.toString())
+							})
+					btnEdit?.imageResource = R.drawable.border_color
+					text?.inputType = InputType.TYPE_NULL
+					text?.clearFocus()
+					text?.isFocusable = false
+					text?.isFocusableInTouchMode = false
+				}
+			}
+		}
 	}
 
 	private fun getComments(useCache: Boolean) {
@@ -204,6 +239,7 @@ class PostActivity : AppCompatActivity() {
 
 	override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
 		menu?.findItem(R.id.action_offended)?.isEnabled = isOffended
+		menu?.findItem(R.id.action_delete)?.isVisible = isDelete
 		return super.onPrepareOptionsMenu(menu)
 	}
 
