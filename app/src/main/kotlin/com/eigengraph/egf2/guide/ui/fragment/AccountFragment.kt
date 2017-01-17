@@ -209,12 +209,14 @@ class AccountFragment : Fragment() {
 				activity.startActivity<LoginActivity>()
 				activity.finishAffinity()
 				DataManager.user = null
+				DataManager.admin = null
 			}, {
 				val pref = activity.defaultSharedPreferences
 				pref.edit().remove("token").apply()
 				activity.startActivity<LoginActivity>()
 				activity.finishAffinity()
 				DataManager.user = null
+				DataManager.admin = null
 			})
 		}
 		return super.onOptionsItemSelected(item)

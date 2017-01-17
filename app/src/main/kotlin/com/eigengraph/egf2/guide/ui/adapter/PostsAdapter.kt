@@ -18,12 +18,14 @@ class PostsAdapter : RecyclerView.Adapter<PostItemViewHolder> {
 	val creators: HashMap<String, EGF2User>
 
 	private val listener: RecyclerClickListener
+	private var isAdmin = false
 
-	constructor(li: ArrayList<EGF2Post>, mapImage: HashMap<String, EGF2File>, mapCreator: HashMap<String, EGF2User>, listener: RecyclerClickListener) {
+	constructor(li: ArrayList<EGF2Post>, mapImage: HashMap<String, EGF2File>, mapCreator: HashMap<String, EGF2User>, listener: RecyclerClickListener, admin: Boolean = false) {
 		list = li
 		images = mapImage
 		creators = mapCreator
 		this.listener = listener
+		isAdmin = admin
 	}
 
 	override fun onBindViewHolder(holder: PostItemViewHolder?, position: Int) {
@@ -32,6 +34,6 @@ class PostsAdapter : RecyclerView.Adapter<PostItemViewHolder> {
 	}
 
 	override fun onCreateViewHolder(parent: ViewGroup?, viewType: Int): PostItemViewHolder {
-		return PostItemViewHolder(PostItemUI().bind(parent!!), listener)
+		return PostItemViewHolder(PostItemUI().bind(parent!!), listener, isAdmin)
 	}
 }

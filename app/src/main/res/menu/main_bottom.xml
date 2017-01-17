@@ -16,4 +16,10 @@
             android:enabled="true"
             android:title="Profile"
             android:icon="@drawable/account"/>
+    <item
+            android:id="@+id/action_admin"
+            android:enabled="true"
+            android:visible="false"
+            android:title="Offensive Posts"
+            android:icon="@drawable/human_handsup"/>
 </menu>

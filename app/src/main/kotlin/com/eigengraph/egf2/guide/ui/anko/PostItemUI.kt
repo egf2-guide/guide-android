@@ -37,6 +37,24 @@ class PostItemUI {
 					}.lparams(width = matchParent, height = wrapContent) {
 						bottomMargin = dip(24)
 					}
+					linearLayout {
+						id = R.id.post_item_admin
+						visibility = View.GONE
+						button {
+							id = R.id.post_item_confirm
+							text = "Confirm"
+						}.lparams(width = matchParent, height = wrapContent) {
+							weight = 1f
+						}
+						button {
+							id = R.id.post_item_cancel
+							text = "Cancel"
+						}.lparams(width = matchParent, height = wrapContent) {
+							weight = 1f
+						}
+					}.lparams(width = matchParent, height = wrapContent) {
+						bottomMargin = dip(24)
+					}
 				}
 			}.view
 }

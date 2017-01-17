@@ -14,4 +14,8 @@
 
     <item name="comment_item_edit" type="id"/>
     <item name="comment_item_delete" type="id"/>
+
+    <item name="post_item_confirm" type="id"/>
+    <item name="post_item_cancel" type="id"/>
+    <item name="post_item_admin" type="id"/>
 </resources>

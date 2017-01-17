@@ -55,7 +55,7 @@ class MainActivityLayout : IActivityLayout {
                 }.lparams(height = dip(0)) {
                     weight = 1f
                 }
-                bottomNavigationView {
+                (activity as MainActivity).bnv = bottomNavigationView {
                     itemBackgroundResource = R.color.colorPrimary
                     itemTextColor = resources.getColorStateList(R.color.main_bottom_item)
                     itemIconTintList = resources.getColorStateList(R.color.main_bottom_item)
